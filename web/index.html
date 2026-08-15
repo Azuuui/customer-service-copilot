@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>客服知识工作台</title><link rel="stylesheet" href="/static/styles.css?v=20260720-3">
+</head>
+<body>
+  <main class="workbench">
+    <aside class="rail announcements" aria-label="公告"><div class="rail-heading"><span class="mark">K</span><h1>公告</h1></div>
+      <article class="notice"><time>今天 · 08:30</time><h2>本周服务提醒</h2><p>请按最新知识答案处理客户问题，遇到缺失内容可直接上报。</p></article>
+      <article class="notice"><time>昨天 · 16:10</time><h2>班务调整</h2><p>晚班值班安排已更新，请在右侧查看本周班务。</p></article>
+    </aside>
+    <section class="main-column" aria-label="知识查询">
+      <div class="brandline"><span class="brand-dot"></span><span>客服知识工作台</span><span class="quiet">企业内网 · 知识查询</span></div>
+      <form id="search-form" class="search-bar"><label class="sr-only" for="query">输入问题或关键词</label><input id="query" name="query" autocomplete="off" placeholder="输入问题或关键词"><button type="submit"><span class="icon">⌕</span>查询</button><button id="report" type="button" class="secondary" disabled>上报</button></form>
+      <p id="status" class="status" role="status"></p><section id="results" class="results" aria-live="polite"></section>
+      <button id="more" type="button" class="more" hidden>显示更多</button>
+    </section>
+    <aside class="rail operations" aria-label="班务和状态"><div class="account"><span class="avatar">客</span><span>当前账号</span><button class="link-button" type="button">登录</button></div>
+      <section class="side-section"><div class="section-title"><h2>本周班务</h2><button class="icon-button" type="button" aria-label="查看班务">↗</button></div><div class="shift active"><span>当前值班</span><strong>早班 · 07:00—14:30</strong><small>林晓 · 陈默</small></div><div class="shift"><span>明日 · 晚班</span><strong>14:30—23:00</strong><small>王宁 · 赵敏</small></div></section>
+      <section class="side-section"><div class="section-title"><h2>当前状态：工作</h2></div><p class="muted">需要离开岗位时提交申请，状态变化会自动更新。</p><div class="status-actions"><button type="button" class="status-button">小休</button><button type="button" class="status-button">大休</button></div></section>
+    </aside>
+  </main><script src="/static/app.js?v=20260720-3"></script>
+</body></html>

@@ -1,0 +1,9 @@
+fastapi==0.128.8
+uvicorn[standard]==0.39.0
+psycopg[binary]==3.2.13
+pgvector==0.4.2
+jieba==0.42.1
+numpy==2.0.2
+sentence-transformers==3.4.1
+torch==2.8.0
+transformers==4.57.6

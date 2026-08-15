@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: customer-service-copilot
+  web:
+    resources:
+      static-locations: classpath:/static/,file:${COPILOT_FRONTEND_DIST:../frontend/dist/}
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://127.0.0.1:54329/rag}
+    username: ${DATABASE_USERNAME:rag}
+    password: ${DATABASE_PASSWORD:}
+server:
+  port: 8080
+  error:
+    include-message: never
+copilot:
+  persistence: ${COPILOT_PERSISTENCE:memory}
+  auth:
+    mode: ${COPILOT_AUTH_MODE:disabled}
+    bootstrap-admin-id: ${COPILOT_BOOTSTRAP_ADMIN_ID:}
+    dingtalk:
+      client-id: ${DINGTALK_CLIENT_ID:}
+      client-secret: ${DINGTALK_CLIENT_SECRET:}
+      corp-id: ${DINGTALK_CORP_ID:}
+      redirect-uri: ${DINGTALK_REDIRECT_URI:}
+  retrieval:
+    base-url: ${COPILOT_RETRIEVAL_BASE_URL:http://127.0.0.1:8765}

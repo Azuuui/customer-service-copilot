@@ -1,0 +1,96 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-demo_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      POSTGRES_DB: ${POSTGRES_DB:-demo}
+    ports:
+      - "127.0.0.1:54329:5432"
+    volumes:
+      - rag_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  migrate:
+    build:
+      context: .
+      dockerfile: db/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-demo_user}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@db:5432/${POSTGRES_DB:-demo}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  knowledge-import:
+    build:
+      context: .
+      dockerfile: retrieval/Dockerfile
+      args:
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+    command: ["python", "scripts/import_rag_knowledge.py", "--json", "data/demo-knowledge.json", "--database-url", "postgresql://${POSTGRES_USER:-demo_user}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@db:5432/${POSTGRES_DB:-demo}", "--batch-size", "16"]
+    environment:
+      HF_HOME: /models/huggingface
+      EMBEDDING_LOCAL_FILES_ONLY: "true"
+    volumes:
+      - ${HF_HOME:-${HOME}/.cache/huggingface}:/models/huggingface:ro
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+
+  retrieval:
+    build:
+      context: .
+      dockerfile: retrieval/Dockerfile
+      args:
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-demo_user}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@db:5432/${POSTGRES_DB:-demo}
+      HF_HOME: /models/huggingface
+      EMBEDDING_LOCAL_FILES_ONLY: "true"
+    volumes:
+      - ${HF_HOME:-${HOME}/.cache/huggingface}:/models/huggingface:ro
+    depends_on:
+      knowledge-import:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8765/internal/v1/health', timeout=5)"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-demo}
+      DATABASE_USERNAME: ${POSTGRES_USER:-demo_user}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      COPILOT_PERSISTENCE: jdbc
+      COPILOT_AUTH_MODE: ${COPILOT_AUTH_MODE:-disabled}
+      COPILOT_BOOTSTRAP_ADMIN_ID: ${COPILOT_BOOTSTRAP_ADMIN_ID:-}
+      DINGTALK_CLIENT_ID: ${DINGTALK_CLIENT_ID:-}
+      DINGTALK_CLIENT_SECRET: ${DINGTALK_CLIENT_SECRET:-}
+      DINGTALK_CORP_ID: ${DINGTALK_CORP_ID:-}
+      DINGTALK_REDIRECT_URI: ${DINGTALK_REDIRECT_URI:-}
+      COPILOT_RETRIEVAL_BASE_URL: http://retrieval:8765
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:8080:8080"
+    depends_on:
+      retrieval:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8080; printf 'GET /api/v1/health HTTP/1.0\\r\\n\\r\\n' >&3; grep -q '200' <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  rag_pgdata:

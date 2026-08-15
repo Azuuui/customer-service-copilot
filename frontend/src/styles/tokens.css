@@ -1,0 +1,25 @@
+:root {
+  font-family: Inter, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: #18333a;
+  background: #f4f1ea;
+  font-synthesis: none;
+  --ink: #18333a;
+  --muted: #687b7c;
+  --paper: #faf8f3;
+  --warm: #f4f1ea;
+  --line: #d8d8cf;
+  --teal: #006b67;
+  --teal-soft: #e1eeeb;
+  --orange: #e66a2c;
+  --white: #fffef9;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+button, input { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+a { color: inherit; text-decoration: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.eyebrow, .section-index { color: var(--teal); font-size: 10px; font-weight: 760; letter-spacing: .17em; }
+.brand-mark { display: grid; place-items: center; width: 34px; height: 34px; color: var(--white); background: var(--teal); font-family: Georgia, serif; font-size: 20px; }
